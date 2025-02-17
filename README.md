@@ -5,7 +5,8 @@ Collection of useful network utilities:
   
   pingarp [ -d ] [ --lladdr ] HOSTNAME | ADDRESS<br>
 
-  pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info<br>
+  pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info
+  
   `--lladdr` to only print the HW (MAC) address<br>
   `-d` to show ping result and progress waiting for arp cache to get updated
   
@@ -13,7 +14,8 @@ Collection of useful network utilities:
   
   pingsweep [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]<br>
 
-  ping all hosts in the provided CIDR(s) to check which hosts are up<br>
+  ping all hosts in the provided CIDR(s) to check which hosts are up
+  
   `--sort` | `-s` to sort the output<br>
   `--arp` | `-a` to check arp cache upon no ping reply from host in local subnet<br>
   `--verbose` | `-v` outputs result for every address checked and if it was
