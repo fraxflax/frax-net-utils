@@ -47,7 +47,7 @@ EXAMPLES:
   ${0##*/} --verbose --arp 192.168.1.0/24 | grep -E 'REACHABLE|UP'
     Lists the route information for all hosts that either replied to ping
     or are REACHABLE in the arp cache on the local subnet (you need to
-    do this from a host in the 192.68.1.0/24 subnet for -a to be useful).
+    do this from a host in the 192.168.1.0/24 subnet for -a to be useful).
 EOU
     [ "$1" ] && exit 1
     exit 0
