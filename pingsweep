@@ -33,22 +33,32 @@ OPTIONS:
 
   --verbose | -v
     outputs result for every address checked and if it was
-    REACHABLE or UNREACHABLE by PING or ARP
-      (status PING implies ARP was never tried
-       add --arp if on LOCAL subnet)
+    UP (PING), REACHABLE (ARP) or DOWN 
+      (PING implies ARP was never tried, add --arp if on LOCAL subnet)
     whether it's on LOCAL or ROUTED to subnet, or if there is NO-ROUTE to
-    it followed by the route information used trying to reach the address.
+    it, followed by the route information used trying to reach the address.
+
+EXAMPLES:
+
+  ${0##*/} 192.168.1.0/27 10.1.0.0/24
+    Shows the ip addresses of all hosts replying to ping in the
+    provided subnets in a sorted list.
+
+  ${0##*/} --verbose --arp 192.168.1.0/24 | grep -E 'REACHABLE|UP'
+    Lists the route information for all hosts that either replied to ping
+    or are REACHABLE in the arp cache on the local subnet (you need to
+    do this from a host in the 192.68.1.0/24 subnet for -a to be useful).
 EOU
     [ "$1" ] && exit 1
     exit 0
 }
 while [ $# -gt 0 ]; do
 	case "$1" in
-	    --help|-h) usage;;
-	    --sort|-s) SORT=-s;;
-	    --arp|-a) ARP=-a;;
-	    --verbose|-v) VERBOSE=-v;;
-	    *) CIDRS="$CIDRS $1";;
+	    --help|-h) usage ;;
+	    --sort|-s) SORT=-s ;;
+	    --arp|-a) ARP=-a ;;
+	    --verbose|-v) VERBOSE=-v ;;
+	    *) CIDRS="$CIDRS $1" ;;
 	esac
 	shift
 done
@@ -83,14 +93,14 @@ isup() {
     else
 	ROUTE=$(ip route get "$1" 2>/dev/null | head -1 | cut -d' ' -f2-)
 	[ "$ROUTE" ] || {
-	    [ "$VERBOSE" ] && printf "%s\tUNREACHABLE NO-ROUTE\n" "$1"
+	    [ "$VERBOSE" ] && printf "%s\tDOWN NO-ROUTE\n" "$1"
 	    return
 	}
 	ROUTE="LOCAL $ROUTE"
 	LOCAL=y
     fi
     if ping -q -w2 -c1 "$1" >/dev/null 2>&1; then
-	if [ $VERBOSE ]; then printf '%s\tREACHABLE PING %s\n' "$1" "$ROUTE"
+	if [ $VERBOSE ]; then printf '%s\tUP PING %s\n' "$1" "$ROUTE"
 	else printf '%s\n' "$1"; fi
     elif [ "$ARP" ] && [ "$LOCAL" ]; then
 	STATE=$(ip neigh show to "$1" | grep -oE "$ARPSTATES")
@@ -108,10 +118,10 @@ isup() {
 	elif [ "REACHABLE" = "$STATE" ]; then
 	    printf '%s\n' "$1"
 	elif [ $VERBOSE ]; then
-	    printf "%s\tUNREACHABLE ARP %s\n" "$1" "$ROUTE"
+	    printf "%s\tDOWN ARP %s\n" "$1" "$ROUTE"
 	fi
     elif [ $VERBOSE ]; then
-	[ "$VERBOSE" ] && printf "%s\tUNREACHABLE PING %s\n" "$1" "$ROUTE"
+	[ "$VERBOSE" ] && printf "%s\tDOWN PING %s\n" "$1" "$ROUTE"
     fi
 }
 
