@@ -1,15 +1,17 @@
 # frax-net-utils
 Collection of useful network utilities:
 
-* [pingarp](https://github.com/fraxflax/frax-net-utils/pingarp)<br>
-  USAGE: pingarp [-d] [--lladdr] HOSTNAME | ADDRESS<br>
+* [pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingarp)<br>
+  
+  pingarp [-d] [--lladdr] HOSTNAME | ADDRESS<br>
 
   pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info<br>
   `--lladdr` to only print the HW (MAC) address<br>
   `-d` to show ping result and progress waiting for arp cache to get updated
   
-* [pingsweep](https://github.com/fraxflax/frax-net-utils/pingsweep)<br>
-  USAGE: pingsweep [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]<br>
+* [pingsweep](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingsweep)<br>
+  
+  pingsweep [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]<br>
 
   ping all hosts in the provided CIDR(s) to check which hosts are up<br>
   `--sort` | `-s` to sort the output<br>
