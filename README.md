@@ -26,6 +26,6 @@ Also check out https://github.com/fraxflax/nw-watchdog for a higly configurable 
 
 --
 
-All of these are free software written by Fredrik Ax <nw-watchdog@axnet.nu>.
-Feel free to modify and/or (re)distribute it in any way you like.<br>
+This is free software written by Fredrik Ax <nw-watchdog@axnet.nu>. <br>
+Feel free to modify and/or (re)distribute it in any way you like. <br>
 ... it's always nice to be mentioned though ;-)
