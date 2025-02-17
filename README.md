@@ -1,5 +1,5 @@
 # frax-net-utils
-Collection of useful network utilities:
+Collection of useful network utilities for Linux.
 
 * [pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingarp) [ -d ] [ --lladdr ] HOSTNAME | ADDRESS<br>
 
