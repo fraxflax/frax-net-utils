@@ -14,7 +14,7 @@ Collection of useful network utilities:
   
   `--sort` | `-s` to sort the output<br>
   `--arp` | `-a` to check arp cache upon no ping reply from host in local subnet<br>
-  `--verbose` | `-v` outputs result for every address checked and if it was
+  `--verbose` | `-v` outputs detailed result for every address checked
 
 --
 
