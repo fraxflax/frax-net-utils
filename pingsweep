@@ -1,0 +1,159 @@
+#!/bin/sh
+# man ip-neighbour:
+# STATE := { permanent | noarp | stale | reachable | none | incomplete | delay | probe | failed }
+ARPSTATES='(PERMANENT|NOARP|STALE|REACHABLE|NONE|INCOMPLETE|DELAY|PROBE|FAILED)'
+CIDRS=
+SORT=
+ARP=
+VERBOSE=
+usage() {
+    [ "$1" ] && printf '#\n# ERROR: %s\n#\n\n' "$1">&2
+    cat<<EOU
+SYNOPSIS:
+
+  ${0##*/} [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]
+
+
+CIDR:
+
+  Each CIDR (Classless Inter-Domain Routing address)
+  should be in the format   IPv4ADDRESS/NETMASK
+  where IPv4ADDRESS should be in octet format
+  and NETMASK could be specified either as the number of bits
+  (a number between 0 and 32) or in octet format.
+  If no NETMASK is specified, it is assumed to be /32.
+
+OPTIONS:
+
+  --sort | -s
+    sort the output
+
+  --arp | -a
+    check arp for local scope if no ping reply
+
+  --verbose | -v
+    outputs result for every address checked and if it was
+    REACHABLE or UNREACHABLE by PING or ARP
+      (status PING implies ARP was never tried
+       add --arp if on LOCAL subnet)
+    whether it's on LOCAL or ROUTED to subnet, or if there is NO-ROUTE to
+    it followed by the route information used trying to reach the address.
+EOU
+    [ "$1" ] && exit 1
+    exit 0
+}
+while [ $# -gt 0 ]; do
+	case "$1" in
+	    --help|-h) usage;;
+	    --sort|-s) SORT=-s;;
+	    --arp|-a) ARP=-a;;
+	    --verbose|-v) VERBOSE=-v;;
+	    *) CIDRS="$CIDRS $1";;
+	esac
+	shift
+done
+[ $(printf printf) = printf ] || {
+    echo "This script requires a POSIX compliant shell (lacking 'printf')!" >&2
+    exit 1
+}
+for x in ipcalc grep cut ip ping sleep cat; do
+    which $x>/dev/null || {
+	printf 'This scripts depends on printf, ipcalc, grep, cut, ip, ping & sleep.\nExecutable "%s" is not found in $PATH ... aborting!\n' $x 1>&2
+	exit 1
+    }
+done
+
+[ "$CIDRS" ] || usage "No CIDR or IP-address specified!"
+
+[ "$SORT" ] && {
+    which sort>/dev/null || usage 'Executable "sort" not found in $PATH ... rerun without "--sort" to show unsorted results!'
+}
+
+for cidr in $CIDRS; do
+    printf %s "$cidr" | grep -qE / || cidr="$cidr/32"
+    IPCALC=$(ipcalc -bn "$cidr" 2>&1)
+    printf '%s' "$IPCALC" | grep -qE '^Address:\s' || usage "Invalid CIDR: $cidr"
+done
+
+isup() {   
+    ROUTE=$(ip route get "$1" 2>&1 | grep via | cut -d' ' -f2-)
+    if [ "$ROUTE" ]; then
+       ROUTE="ROUTED $ROUTE"
+       LOCAL=
+    else
+	ROUTE=$(ip route get "$1" 2>/dev/null | head -1 | cut -d' ' -f2-)
+	[ "$ROUTE" ] || {
+	    [ "$VERBOSE" ] && printf "%s\tUNREACHABLE NO-ROUTE\n" "$1"
+	    return
+	}
+	ROUTE="LOCAL $ROUTE"
+	LOCAL=y
+    fi
+    if ping -q -w2 -c1 "$1" >/dev/null 2>&1; then
+	if [ $VERBOSE ]; then printf '%s\tREACHABLE PING %s\n' "$1" "$ROUTE"
+	else printf '%s\n' "$1"; fi
+    elif [ "$ARP" ] && [ "$LOCAL" ]; then
+	STATE=$(ip neigh show to "$1" | grep -oE "$ARPSTATES")
+	printf '%s' "$STATE" | grep -qE 'PERMANENT|STALE|NONE|INCOMPLETE|DELAY|PROBE' && {
+	    ping -q -w1 -c1 "$1" >/dev/null
+	    sleep 1
+	    STATE=$(ip neigh show to "$1" | grep -oE "$ARPSTATES")
+	}
+	while printf "%s" "$STATE" | grep -qE 'INCOMPLETE|DELAY|PROBE'; do
+	    sleep 0.5
+	    STATE=$(ip neigh show to "$1" | grep -oE "$ARPSTATES")
+	done
+	if [ "REACHABLE" = "$STATE" ] && [ $VERBOSE ]; then
+	    printf "%s\tREACHABLE ARP %s\n" "$1" "$ROUTE"
+	elif [ "REACHABLE" = "$STATE" ]; then
+	    printf '%s\n' "$1"
+	elif [ $VERBOSE ]; then
+	    printf "%s\tUNREACHABLE ARP %s\n" "$1" "$ROUTE"
+	fi
+    elif [ $VERBOSE ]; then
+	[ "$VERBOSE" ] && printf "%s\tUNREACHABLE PING %s\n" "$1" "$ROUTE"
+    fi
+}
+
+doit() {
+    for cidr in $CIDRS; do
+	printf %s "$cidr" | grep -qE / || cidr="$cidr/32"
+	IPCALC=$(ipcalc -bn "$cidr" 2>&1)
+	BC=$(printf '%s' "$IPCALC" | grep -E '^Broadcast:' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+	if [ -z "$BC" ]; then
+	    NW=$(printf '%s' "$IPCALC"  | grep -E '^Address:' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+	    BC=$NW
+	else
+	    NW=$(printf '%s' "$IPCALC" | grep -E '^Network:' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+	fi
+	N1=$(printf '%s' "$NW" | cut -d. -f1)
+	N2=$(printf '%s' "$NW" | cut -d. -f2)
+	N3=$(printf '%s' "$NW" | cut -d. -f3)
+	N4=$(printf '%s' "$NW" | cut -d. -f4)
+	[ "$N1.$N2.$N3.$N4" = "$NW" ] || { printf 'INTERNAL ERROR!\n%s\n' "$IPCALC" >&2 ; exit 1 ;}
+	while [ "$N1.$N2.$N3.$N4" != "$BC" ]; do
+	    isup "$N1.$N2.$N3.$N4" &
+	    N4=$(($N4+1))
+	    [ $N4 -gt 255 ] && {
+		N4=0
+		N3=$(($N3+1))
+		[ $N3 -gt 255 ] && {
+		    N3=0
+		    N2=$(($N2+1))
+		    [ $N2 -gt 255 ] && {
+			N2=0
+			N1=$(($N1+1))
+			[ $N1 -gt 255 ] && { printf 'INTERNAL ERROR! N1\n' >&2 ; exit 1 ;}
+		    }
+		}
+	    }
+	done
+	isup "$BC"
+    done
+}
+
+if [ "$SORT" ]; then
+    doit | sort -nt. -k1,1n -k2,2n -k3,3n -k4,4n
+else
+    doit | cat
+fi

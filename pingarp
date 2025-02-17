@@ -1,0 +1,64 @@
+#!/bin/sh
+# man 8 ip-neighbour:
+# STATE := { permanent | noarp | stale | reachable | none | incomplete | delay | probe | failed }
+ARPSTATES='(PERMANENT|NOARP|STALE|REACHABLE|NONE|INCOMPLETE|DELAY|PROBE|FAILED)'
+[ "$(printf printf)" = printf ] || {
+	echo "This script requires a POSIX compliant shell (lacking 'printf')!" >&2
+	exit 1
+}
+die() {
+    C=$1 ; shift 
+    P="$1"; shift
+    [ "$C" -eq 1 ] || [ $V ] && printf "\n$P\n" "$@" >&2
+    exit $C
+}
+for x in 'getent head grep ping ip'; do
+	which $x>/dev/null || die 1 'This scripts depends on %s.\nExecutable "%s" is not found in $PATH ... aborting!\n' "$DEPS" $x 1>&2
+done
+V='y' D=''
+[ "$1" = "-d" ] && { D=y ; shift ;}
+[ "$1" = "--lladdr" ] && { V='' ; shift ;}
+[ "$1" = "-d" ] && { D=y ; shift ;}
+debug() {
+    [ "$D" ] || return
+    P="$1"; shift
+    printf "$P\n" "$@" >&2
+}
+A="$1"
+shift
+[ $1 ] && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
+[ $A ] || die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
+printf %s "$A" | grep -q '^-' && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
+
+A=$(getent ahostsv4 "$A" | head -1 | grep -oE '^[0-9.]+')
+[ "$A" ] || die 1 'ERROR: Unable to resolve "%s"!' "$1"
+
+if [ $D ]; then 
+    ping -w1 -c1 "$A" >&2
+else
+    ping -w1 -c1 "$A" >/dev/null 2>&1
+fi
+
+ip route show match "$A" | grep -q 'scope link' || die 2 '"%s" not in local scope!' "$A"
+
+STATE=$(ip neigh show to "$A" | grep -oE "$ARPSTATES")
+[ "$STATE" ] || die 3 'No arp entry for "%s"!' "$A"
+debug 'STATE=%s' $STATE
+printf '%s' "$STATE" | grep -qE 'STALE|NONE|INCOMPLETE|DELAY|PROBE' && {
+    ping -q -w1 -c1 "$A" >/dev/null
+    sleep 1
+    STATE=$(ip neigh show to "$A" | grep -oE "$ARPSTATES")
+    debug 'STATE=%s' $STATE
+}
+while printf %s "$STATE" | grep -qE 'STALE|NONE|INCOMPLETE|DELAY|PROBE'; do
+    sleep 0.5
+    STATE=$(ip neigh show to "$A" | grep -oE "$ARPSTATES")
+    debug 'STATE=%s' $STATE
+done
+
+R=$(ip neigh show to "$A")
+printf %s "$R" | grep -q ' lladdr ' || die 4 '%s\n\nNo link local address for "%s"!' "$R" "$A"
+
+if [ "$V" ]; then printf '%s\n' "$R"
+else printf %s "$R" | grep -oE 'lladdr\s+([0-9a-f:]+)' | grep -oE '([0-9a-f:]+)$'; fi
+exit 0
