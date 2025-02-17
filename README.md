@@ -10,7 +10,7 @@ Collection of useful network utilities:
   
 * [pingsweep](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingsweep) [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]<br>
 
-  ping all hosts in the provided CIDR(s) to check which hosts are up
+  parallell ping of all hosts in the provided CIDR(s) to check which hosts are up
   
   `--sort` | `-s` to sort the output<br>
   `--arp` | `-a` to check arp cache upon no ping reply from host in local subnet<br>
