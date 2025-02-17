@@ -3,7 +3,7 @@ Collection of useful network utilities:
 
 * [pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingarp)<br>
   
-  pingarp [-d] [--lladdr] HOSTNAME | ADDRESS<br>
+  pingarp [ -d ] [ --lladdr ] HOSTNAME | ADDRESS<br>
 
   pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info<br>
   `--lladdr` to only print the HW (MAC) address<br>
