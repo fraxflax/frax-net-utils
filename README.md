@@ -16,11 +16,11 @@ Collection of useful network utilities for Linux.
   `--arp` | `-a` to check arp cache upon no ping reply from host in local subnet<br>
   `--verbose` | `-v` outputs detailed result for every address checked
 
---
+---
 
 Also check out https://github.com/fraxflax/nw-watchdog for a higly configurable network watchdog.
 
---
+---
 
 This is free software written by Fredrik Ax &lt;nw-watchdog@axnet.nu&gt;. <br>
 Feel free to modify and/or (re)distribute it in any way you like. <br>
