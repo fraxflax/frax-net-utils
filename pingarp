@@ -26,9 +26,9 @@ debug() {
 }
 A="$1"
 shift
-[ $1 ] && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
-[ $A ] || die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
-printf %s "$A" | grep -q '^-' && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
+[ $1 ] && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
+[ $A ] || die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
+printf %s "$A" | grep -q '^-' && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
 
 R=$(getent ahostsv4 "$A" | head -1 | grep -oE '^[0-9.]+')
 [ "$R" ] || die 1 'ERROR: Unable to resolve "%s"!' "$A"
