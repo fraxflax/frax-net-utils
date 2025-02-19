@@ -12,7 +12,7 @@ die() {
     [ "$C" -eq 1 ] || [ $V ] && printf "\n$P\n" "$@" >&2
     exit $C
 }
-for x in 'getent head grep ping ip'; do
+for x in 'getent head grep ping ip sort uniq'; do
 	which $x>/dev/null || die 1 'This scripts depends on %s.\nExecutable "%s" is not found in $PATH ... aborting!\n' "$DEPS" $x 1>&2
 done
 V='y' D=''
