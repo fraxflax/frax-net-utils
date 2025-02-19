@@ -39,20 +39,21 @@ else
     ping -w1 -c1 "$A" >/dev/null 2>&1
 fi
 
-ip route show match "$A" | grep -q 'scope link' || die 2 '"%s" not in local scope!' "$A"
+IFC=$(ip route get 10.45.32.1 | grep -v via | grep -oE 'dev [^ ]+' | cut -d' ' -f2)
+[ "$IFC" ] || die 2 '"%s" not in local scope!' "$A"
 
-STATE=$(ip neigh show to "$A" | grep -oE "$ARPSTATES")
+STATE=$(ip neigh get dev $IFC $A | grep -oE "$ARPSTATES")
 [ "$STATE" ] || die 3 'No arp entry for "%s"!' "$A"
 debug 'STATE=%s' $STATE
 printf '%s' "$STATE" | grep -qE 'STALE|NONE|INCOMPLETE|DELAY|PROBE' && {
     ping -q -w1 -c1 "$A" >/dev/null
     sleep 1
-    STATE=$(ip neigh show to "$A" | grep -oE "$ARPSTATES")
+    STATE=$(ip neigh get dev $IFC $A | grep -oE "$ARPSTATES")
     debug 'STATE=%s' $STATE
 }
 while printf %s "$STATE" | grep -qE 'STALE|NONE|INCOMPLETE|DELAY|PROBE'; do
     sleep 0.5
-    STATE=$(ip neigh show to "$A" | grep -oE "$ARPSTATES")
+    STATE=$(ip neigh get dev $IFC $A | grep -oE "$ARPSTATES")
     debug 'STATE=%s' $STATE
 done
 
@@ -60,5 +61,5 @@ R=$(ip neigh show to "$A")
 printf %s "$R" | grep -q ' lladdr ' || die 4 '%s\n\nNo link local address for "%s"!' "$R" "$A"
 
 if [ "$V" ]; then printf '%s\n' "$R"
-else printf %s "$R" | grep -oE 'lladdr\s+([0-9a-f:]+)' | grep -oE '([0-9a-f:]+)$'; fi
+else printf %s "$R" | grep -oE 'lladdr\s+([0-9a-f:]+)' | grep -oE '([0-9a-f:]+)$' | sort | uniq; fi
 exit 0
