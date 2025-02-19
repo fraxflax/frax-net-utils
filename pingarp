@@ -25,9 +25,9 @@ debug() {
     printf "$P\n" "$@" >&2
 }
 A="$1"
-shift
-[ $1 ] && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
-[ $A ] || die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
+[ $# -gt 0 ] && shift
+[ "$1" ] && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
+[ "$A" ] || die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
 printf %s "$A" | grep -q '^-' && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | IPv4ADDRESS' "${0##*/}"
 
 R=$(getent ahostsv4 "$A" | head -1 | grep -oE '^[0-9.]+')
