@@ -1,14 +1,14 @@
 # frax-net-utils
 Collection of useful network utilities for Linux.
 
-* [pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingarp) [ -d ] [ --lladdr ] HOSTNAME | ADDRESS<br>
+* **[pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingarp)** [ -d ] [ --lladdr ] HOSTNAME | ADDRESS<br>
 
   pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info
   
   `--lladdr` to only print the Link Local (hw/mac) Address<br>
   `-d` to show ping result and progress waiting for arp cache to get updated
   
-* [pingsweep](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingsweep) [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]<br>
+* **[pingsweep](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingsweep)** [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]<br>
 
   parallell ping of all hosts in the provided CIDR(s) to check which hosts are up
   
@@ -18,7 +18,7 @@ Collection of useful network utilities for Linux.
 
 ---
 
-Also check out https://github.com/fraxflax/nw-watchdog for a higly configurable network watchdog.
+Also check out **[nw-watchdog](https://github.com/fraxflax/nw-watchdog)** for a higly configurable network watchdog.
 
 ---
 
