@@ -5,7 +5,7 @@ Collection of useful network utilities for Linux.
 
   pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info
   
-  `--lladdr` to only print the Link Local (hw/mac) Address<br>
+  `--lladdr` to only print the unique Link Local (hw/mac) Address(es)<br>
   `-d` to show ping result and progress waiting for arp cache to get updated
   
 * **[pingsweep](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingsweep)** [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]<br>
