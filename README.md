@@ -1,7 +1,7 @@
 # frax-net-utils
 Collection of useful network utilities for Linux.
 
-* **[pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingarp)** [ -d ] [ --lladdr ] HOSTNAME | ADDRESS<br>
+* **[pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/pingarp)** [ -d ] [ --lladdr ] HOSTNAME | IPv4ADDRESS<br>
 
   pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info
   
