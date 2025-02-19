@@ -30,8 +30,9 @@ shift
 [ $A ] || die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
 printf %s "$A" | grep -q '^-' && die 1 'USAGE: %s [-d] [--lladdr] HOSTNAME | ADDRESS' "${0##*/}"
 
-A=$(getent ahostsv4 "$A" | head -1 | grep -oE '^[0-9.]+')
-[ "$A" ] || die 1 'ERROR: Unable to resolve "%s"!' "$1"
+R=$(getent ahostsv4 "$A" | head -1 | grep -oE '^[0-9.]+')
+[ "$R" ] || die 1 'ERROR: Unable to resolve "%s"!' "$A"
+A=$R
 
 if [ $D ]; then 
     ping -w1 -c1 "$A" >&2
@@ -39,7 +40,7 @@ else
     ping -w1 -c1 "$A" >/dev/null 2>&1
 fi
 
-IFC=$(ip route get 10.45.32.1 | grep -v via | grep -oE 'dev [^ ]+' | cut -d' ' -f2)
+IFC=$(ip route get $A | grep -v via | grep -oE 'dev [^ ]+' | cut -d' ' -f2)
 [ "$IFC" ] || die 2 '"%s" not in local scope!' "$A"
 
 STATE=$(ip neigh get dev $IFC $A | grep -oE "$ARPSTATES")
