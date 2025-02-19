@@ -97,21 +97,22 @@ isup() {
 	    return
 	}
 	ROUTE="LOCAL $ROUTE"
-	LOCAL=y
+	LOCAL=$(ip route get 10.45.32.1 | grep -v via | grep -oE 'dev [^ ]+' | cut -d' ' -f2)
+	[ "$LOCAL" ] || printf "WARNING: No interface for LOCAL addr %s!\n" "$1" >&2
     fi
     if ping -q -w2 -c1 "$1" >/dev/null 2>&1; then
 	if [ $VERBOSE ]; then printf '%s\tUP PING %s\n' "$1" "$ROUTE"
 	else printf '%s\n' "$1"; fi
     elif [ "$ARP" ] && [ "$LOCAL" ]; then
-	STATE=$(ip neigh show to "$1" | grep -oE "$ARPSTATES")
+	STATE=$(ip neigh get dev $LOCAL $1 | grep -oE "$ARPSTATES")
 	printf '%s' "$STATE" | grep -qE 'PERMANENT|STALE|NONE|INCOMPLETE|DELAY|PROBE' && {
 	    ping -q -w1 -c1 "$1" >/dev/null
 	    sleep 1
-	    STATE=$(ip neigh show to "$1" | grep -oE "$ARPSTATES")
+	    STATE=$(ip neigh get dev $LOCAL $1 | grep -oE "$ARPSTATES")
 	}
 	while printf "%s" "$STATE" | grep -qE 'INCOMPLETE|DELAY|PROBE'; do
 	    sleep 0.5
-	    STATE=$(ip neigh show to "$1" | grep -oE "$ARPSTATES")
+	    STATE=$(ip neigh get dev $LOCAL $1 | grep -oE "$ARPSTATES")
 	done
 	if [ "REACHABLE" = "$STATE" ] && [ $VERBOSE ]; then
 	    printf "%s\tREACHABLE ARP %s\n" "$1" "$ROUTE"
