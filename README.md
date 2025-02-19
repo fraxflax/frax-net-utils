@@ -23,15 +23,21 @@ Feel free to modify and/or (re)distribute it in any way you like. <br>
 ---
 **Installation:**<br>
 Will donwload the above listed scripts, as well as the updater and uninstaller, to /usr/local/bin and make them readable and executable for all users.
-```curl https://github.com/fraxflax/frax-net-utils/raw/refs/heads/main/install-frax-net-utils.sh | sudo sh```
+```
+curl https://github.com/fraxflax/frax-net-utils/raw/refs/heads/main/install-frax-net-utils.sh | sudo sh
+```
 
 Once installed:
 
 To **update** to latest version run:
-```sudo update-frax-net-utils.sh```
+```
+sudo update-frax-net-utils.sh
+```
 
 To **uninstall** run:
-```sudo uninstall-frax-net-utils.sh```
+```
+sudo uninstall-frax-net-utils.sh
+```
 
 ---
 
