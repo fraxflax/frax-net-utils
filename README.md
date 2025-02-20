@@ -5,6 +5,8 @@ This is free software written by Fredrik Ax &lt;nw-watchdog@axnet.nu&gt;. <br>
 Feel free to modify and/or (re)distribute it in any way you like. <br>
 ... it's always nice to be mentioned though ;-)
 
+ frax-net-utils comes with ABSOLUTELY NO WARRANTY.
+
 * **[pingarp](https://raw.githubusercontent.com/fraxflax/frax-net-utils/refs/heads/main/bin/pingarp)** [ -d ] [ --lladdr ] HOSTNAME | IPv4ADDRESS<br>
 
   pings an host and waits for the arp cache to get updated before printing the resulting arp-cache info
