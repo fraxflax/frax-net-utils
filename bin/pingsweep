@@ -18,7 +18,7 @@ SYNOPSIS:
 CIDR:
 
   Each CIDR (Classless Inter-Domain Routing address)
-  should be in the format   IPv4ADDRESS/NETMASK
+  should be in the format   IPv4ADDRESS[/NETMASK]
   where IPv4ADDRESS should be in octet format
   and NETMASK could be specified either as the number of bits
   (a number between 0 and 32) or in octet format.
