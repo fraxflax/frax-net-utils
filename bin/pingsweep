@@ -97,7 +97,7 @@ isup() {
 	    return
 	}
 	ROUTE="LOCAL $ROUTE"
-	LOCAL=$(ip route get 10.45.32.1 | grep -v via | grep -oE 'dev [^ ]+' | cut -d' ' -f2)
+	LOCAL=$(ip route get $1 | grep -v via | grep -oE 'dev [^ ]+' | cut -d' ' -f2)
 	[ "$LOCAL" ] || printf "WARNING: No interface for LOCAL addr %s!\n" "$1" >&2
     fi
     if ping -q -w2 -c1 "$1" >/dev/null 2>&1; then
