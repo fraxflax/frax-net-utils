@@ -82,8 +82,7 @@ done
 
 for cidr in $CIDRS; do
     printf %s "$cidr" | grep -qE / || cidr="$cidr/32"
-    IPCALC=$(ipcalc -bn "$cidr" 2>&1)
-    printf '%s' "$IPCALC" | grep -qE '^Address:\s' || usage "Invalid CIDR: $cidr"
+    ipcalc -bn "$cidr" 2>&1 | grep -qE '^Address:\s' || usage "Invalid CIDR: $cidr"
 done
 
 isup() {   
