@@ -7,11 +7,12 @@ SORT=
 ARP=
 VERBOSE=
 usage() {
-    [ "$1" ] && printf '#\n# ERROR: %s\n#\n\n' "$1">&2
+    pingsweep="${0##*/}"
+    [ "$1" ] && printf '#\n# ERROR: %s\n#\n\n' "$1" >&2
     cat<<EOU
 SYNOPSIS:
 
-  ${0##*/} [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]
+  $pingsweep [ OPTIONS ]  CIDR1 [ CIDR2 ...  CIDRN ]
 
 
 CIDR:
@@ -40,11 +41,11 @@ OPTIONS:
 
 EXAMPLES:
 
-  ${0##*/} -s 192.168.1.0/27 10.1.0.0/24
+  $pingsweep -s 192.168.1.0/27 10.1.0.0/24
     Shows the ip addresses of all hosts replying to ping in the
     provided subnets in a sorted list.
 
-  ${0##*/} -v -a 192.168.1.0/24 | grep -E 'REACHABLE|UP'
+  $pingsweep -v -a 192.168.1.0/24 | grep -E 'REACHABLE|UP'
     Lists the route information for all hosts that either replied to ping
     or are REACHABLE in the arp cache on the local subnet (you need to
     do this from a host in the 192.168.1.0/24 subnet for -a to be useful).
@@ -104,15 +105,15 @@ isup() {
 	if [ $VERBOSE ]; then printf '%s\tUP PING %s\n' "$1" "$ROUTE"
 	else printf '%s\n' "$1"; fi
     elif [ "$ARP" ] && [ "$LOCAL" ]; then
-	STATE=$(ip neigh get dev $LOCAL $1 | grep -oE "$ARPSTATES")
+	STATE=$(ip neigh get dev $LOCAL $1 2>&1 | grep -oE "$ARPSTATES")
 	printf '%s' "$STATE" | grep -qE 'PERMANENT|STALE|NONE|INCOMPLETE|DELAY|PROBE' && {
 	    ping -q -w1 -c1 "$1" >/dev/null
 	    sleep 1
-	    STATE=$(ip neigh get dev $LOCAL $1 | grep -oE "$ARPSTATES")
+	    STATE=$(ip neigh get dev $LOCAL $1 2>&1 | grep -oE "$ARPSTATES")
 	}
 	while printf "%s" "$STATE" | grep -qE 'INCOMPLETE|DELAY|PROBE'; do
 	    sleep 0.5
-	    STATE=$(ip neigh get dev $LOCAL $1 | grep -oE "$ARPSTATES")
+	    STATE=$(ip neigh get dev $LOCAL $1 2>&1 | grep -oE "$ARPSTATES")
 	done
 	if [ "REACHABLE" = "$STATE" ] && [ $VERBOSE ]; then
 	    printf "%s\tREACHABLE ARP %s\n" "$1" "$ROUTE"
