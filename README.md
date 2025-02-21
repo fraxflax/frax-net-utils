@@ -18,6 +18,7 @@ Feel free to modify and/or (re)distribute it in any way you like. <br>
 
   parallell ping of all hosts in the provided CIDR(s) to check which hosts are up
   
+  `--help` | `-h` show usage instructions and examples<br>
   `--sort` | `-s` to sort the output<br>
   `--arp` | `-a` to check arp cache upon no ping reply from host in local subnet<br>
   `--verbose` | `-v` outputs detailed result for every address checked
